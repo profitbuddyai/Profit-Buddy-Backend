@@ -4,7 +4,7 @@ const checkAiQuota = async (req, res, next) => {
   const user = req.user;
   const userPlan = user?.currentSubscription;
 
-  if (!userPlan || userPlan?.status !== 'active') {
+  if (!userPlan || (userPlan?.status !== 'active' && userPlan?.status !== 'trialing')) {
     return res.status(403).json({ message: 'No active plan found' });
   }
 
