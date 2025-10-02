@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1', mainRouter);
 // const abc = async () => {
 //   try {
-//     sendEmail('junaidhunani890@gmail.com', 'Reset Your Profit Buddy Password', ForgotPasswordTemplate('https'));
+//     sendEmail('hanzalahsamana789@gmail.com', 'Reset Your Profit Buddy Password', ForgotPasswordTemplate('https'));
 //   } catch (error) {
 //     console.log(error);
 //   }

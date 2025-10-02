@@ -67,7 +67,7 @@ const createSubscription = async (req, res) => {
       if (!couponDoc) {
         return res.status(400).json({ success: false, message: 'Invalid coupon code' });
       }
-      if (coupon.usedBy?.includes(user?.email)) {
+      if (couponDoc.usedBy?.includes(user?.email)) {
         return res.status(400).json({ success: false, message: 'you have already used this coupon' });
       }
       appliedCoupon = couponDoc;
@@ -176,7 +176,7 @@ const cancelSubscription = async (req, res) => {
 
       subscription.status = 'canceled';
       subscription.currentPeriodEnd = new Date();
-      await subscription.save();
+      // await subscription.save();
     }
 
     return res.status(200).json({
@@ -227,7 +227,6 @@ const verifyCanSubscribe = async (req, res) => {
 
       const stripeActive = subscriptions.data.some((sub) => sub.status === 'active' || sub.status === 'trialing');
 
-      console.log('📬📬📬', subscriptions.data);
       if (stripeActive) hasActiveOrTrialing = true;
     }
 
