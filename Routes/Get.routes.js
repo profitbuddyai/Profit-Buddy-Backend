@@ -1,0 +1,30 @@
+const express = require('express');
+const router = express.Router();
+const { searchProducts, findProductAsins, getProducts } = require('../Controllers/Product');
+const { getOffersOfProduct } = require('../Controllers/Offer');
+const { getGraphImage, getGraphData } = require('../Controllers/Graph');
+const { getSellerInfo, calculateSellerRevenue } = require('../Controllers/Seller');
+const { getUserDetail } = require('../Controllers/User');
+const tokenChecker = require('../MiddleWares/TokenChecker');
+const { getHistoryData } = require('../Controllers/History');
+const { aiChat } = require('../Controllers/AIChat');
+const { checkAiQuota } = require('../MiddleWares/CheckQuotas');
+const { getCoupons } = require('../Controllers/Admin/Coupon');
+const { verifyCanSubscribe, getOrSetDefaultPaymentMethod } = require('../Controllers/Subscription');
+
+router.get('/products', tokenChecker, getProducts);
+router.get('/search-product', tokenChecker, searchProducts);
+router.get('/product-offers', tokenChecker, getOffersOfProduct);
+router.get('/graph-image', tokenChecker, getGraphImage);
+router.get('/seller-info', tokenChecker, getSellerInfo);
+router.get('/find-product-asins', tokenChecker, findProductAsins);
+router.get('/graph-data', tokenChecker, getGraphData);
+router.get('/calculate-seller-revenue', tokenChecker, calculateSellerRevenue);
+router.get('/user-detail', tokenChecker, getUserDetail);
+router.get('/history', tokenChecker, getHistoryData);
+router.get('/ai-chat', tokenChecker, checkAiQuota, aiChat);
+router.get('/coupons', tokenChecker, getCoupons);
+router.get('/verifyCanSubscribe', tokenChecker, verifyCanSubscribe);
+router.get('/defualt-payment-method', tokenChecker, getOrSetDefaultPaymentMethod );
+
+module.exports = router;

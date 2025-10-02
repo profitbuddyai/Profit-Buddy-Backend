@@ -1,0 +1,44 @@
+   if (couponCode) {
+      const coupon = await CouponModel.findOne({ name: couponCode });
+
+      if (!coupon) {
+        return res.status(400).json({
+          success: false,
+          message: 'The coupon code you entered is either invalid, expired, or not applicable. Please double-check the code or try a different one.',
+        });
+      }
+
+      if (coupon.used) {
+        return res.status(400).json({
+          success: false,
+          message: 'This coupon code has already been used.',
+        });
+      }
+
+      const startDate = new Date();
+      const endDate = getDateAfterMonths(PLAN_QUOTAS[coupon?.planName]?.durationMonths || 1);
+
+      const newSubscriptionData = {
+        planName: coupon.planName || planName,
+        status: 'active',
+        subscriptionType: 'coupon',
+        currentPeriodStart: startDate,
+        currentPeriodEnd: endDate,
+        userRef: user._id,
+      };
+
+      const subscriptionDoc = await SubscriptionModel.findOneAndUpdate({ userRef: user._id }, newSubscriptionData, { new: true, upsert: true });
+
+      coupon.used = true;
+      coupon.userEmail = user.email;
+      await coupon.save();
+
+      user.currentSubscription = subscriptionDoc._id;
+      await user.save();
+
+      return res.json({
+        success: true,
+        message: `Free subscription activated via coupon: ${couponCode}`,
+        subscription: subscriptionDoc,
+      });
+    }

@@ -1,0 +1,339 @@
+{
+    "success": true,
+    "clientSecret": "pi_3SAstAQ2jkTuccFD2jwEkyp8_secret_c8ys53ZfUbywQ38CQPC0B12x9",
+    "subscriptionId": "sub_1SAst9Q2jkTuccFDcnQF0jkb",
+    "subscription": {
+        "id": "sub_1SAst9Q2jkTuccFDcnQF0jkb",
+        "object": "subscription",
+        "application": null,
+        "application_fee_percent": null,
+        "automatic_tax": {
+            "disabled_reason": null,
+            "enabled": false,
+            "liability": null
+        },
+        "billing_cycle_anchor": 1758721063,
+        "billing_cycle_anchor_config": null,
+        "billing_mode": {
+            "flexible": {
+                "proration_discounts": "included"
+            },
+            "type": "flexible",
+            "updated_at": 1758721063
+        },
+        "billing_thresholds": null,
+        "cancel_at": null,
+        "cancel_at_period_end": false,
+        "canceled_at": null,
+        "cancellation_details": {
+            "comment": null,
+            "feedback": null,
+            "reason": null
+        },
+        "collection_method": "charge_automatically",
+        "created": 1758721063,
+        "currency": "usd",
+        "customer": "cus_T777ZYnrgtPxey",
+        "days_until_due": null,
+        "default_payment_method": null,
+        "default_source": null,
+        "default_tax_rates": [],
+        "description": null,
+        "discounts": [],
+        "ended_at": null,
+        "invoice_settings": {
+            "account_tax_ids": null,
+            "issuer": {
+                "type": "self"
+            }
+        },
+        "items": {
+            "object": "list",
+            "data": [
+                {
+                    "id": "si_T7777DcSvGMAMQ",
+                    "object": "subscription_item",
+                    "billing_thresholds": null,
+                    "created": 1758721064,
+                    "current_period_end": 1761313063,
+                    "current_period_start": 1758721063,
+                    "discounts": [],
+                    "metadata": {},
+                    "plan": {
+                        "id": "price_1S7tu6Q2jkTuccFDPE9f4OOJ",
+                        "object": "plan",
+                        "active": true,
+                        "amount": 4999,
+                        "amount_decimal": "4999",
+                        "billing_scheme": "per_unit",
+                        "created": 1758009982,
+                        "currency": "usd",
+                        "interval": "month",
+                        "interval_count": 1,
+                        "livemode": false,
+                        "metadata": {},
+                        "meter": null,
+                        "nickname": null,
+                        "product": "prod_T41yQS1En12xtf",
+                        "tiers_mode": null,
+                        "transform_usage": null,
+                        "trial_period_days": null,
+                        "usage_type": "licensed"
+                    },
+                    "price": {
+                        "id": "price_1S7tu6Q2jkTuccFDPE9f4OOJ",
+                        "object": "price",
+                        "active": true,
+                        "billing_scheme": "per_unit",
+                        "created": 1758009982,
+                        "currency": "usd",
+                        "custom_unit_amount": null,
+                        "livemode": false,
+                        "lookup_key": null,
+                        "metadata": {},
+                        "nickname": null,
+                        "product": {
+                            "id": "prod_T41yQS1En12xtf",
+                            "object": "product",
+                            "active": true,
+                            "attributes": [],
+                            "created": 1758009981,
+                            "default_price": "price_1S7tu6Q2jkTuccFDPE9f4OOJ",
+                            "description": "Access to ProfitBuddy University, Store Spying, AI Buddy, Chrome Extension, Sales Estimator, and more...",
+                            "images": [],
+                            "livemode": false,
+                            "marketing_features": [],
+                            "metadata": {},
+                            "name": "Business Plan Month",
+                            "package_dimensions": null,
+                            "shippable": null,
+                            "statement_descriptor": null,
+                            "tax_code": null,
+                            "type": "service",
+                            "unit_label": null,
+                            "updated": 1758009982,
+                            "url": null
+                        },
+                        "recurring": {
+                            "interval": "month",
+                            "interval_count": 1,
+                            "meter": null,
+                            "trial_period_days": null,
+                            "usage_type": "licensed"
+                        },
+                        "tax_behavior": "unspecified",
+                        "tiers_mode": null,
+                        "transform_quantity": null,
+                        "type": "recurring",
+                        "unit_amount": 4999,
+                        "unit_amount_decimal": "4999"
+                    },
+                    "quantity": 1,
+                    "subscription": "sub_1SAst9Q2jkTuccFDcnQF0jkb",
+                    "tax_rates": []
+                }
+            ],
+            "has_more": false,
+            "total_count": 1,
+            "url": "/v1/subscription_items?subscription=sub_1SAst9Q2jkTuccFDcnQF0jkb"
+        },
+        "latest_invoice": {
+            "id": "in_1SAstAQ2jkTuccFDXX57EfRt",
+            "object": "invoice",
+            "account_country": "US",
+            "account_name": "Profit Buddy  sandbox",
+            "account_tax_ids": null,
+            "amount_due": 4999,
+            "amount_overpaid": 0,
+            "amount_paid": 0,
+            "amount_remaining": 4999,
+            "amount_shipping": 0,
+            "application": null,
+            "attempt_count": 0,
+            "attempted": false,
+            "auto_advance": false,
+            "automatic_tax": {
+                "disabled_reason": null,
+                "enabled": false,
+                "liability": null,
+                "provider": null,
+                "status": null
+            },
+            "automatically_finalizes_at": null,
+            "billing_reason": "subscription_create",
+            "collection_method": "charge_automatically",
+            "confirmation_secret": {
+                "client_secret": "pi_3SAstAQ2jkTuccFD2jwEkyp8_secret_c8ys53ZfUbywQ38CQPC0B12x9",
+                "type": "payment_intent"
+            },
+            "created": 1758721064,
+            "currency": "usd",
+            "custom_fields": null,
+            "customer": "cus_T777ZYnrgtPxey",
+            "customer_address": null,
+            "customer_email": "hanzalahsamana789@gmail.com",
+            "customer_name": "ali",
+            "customer_phone": null,
+            "customer_shipping": null,
+            "customer_tax_exempt": "none",
+            "customer_tax_ids": [],
+            "default_payment_method": null,
+            "default_source": null,
+            "default_tax_rates": [],
+            "description": null,
+            "discounts": [],
+            "due_date": null,
+            "effective_at": 1758721064,
+            "ending_balance": 0,
+            "footer": null,
+            "from_invoice": null,
+            "hosted_invoice_url": "https://invoice.stripe.com/i/acct_1S7tq5Q2jkTuccFD/test_YWNjdF8xUzd0cTVRMmprVHVjY0ZELF9UNzc3ME4wZ0xucURCV1BJUzRUQzNJcjZrcldncVZiLDE0OTI2MTg2NA0200x3BxH2Rv?s=ap",
+            "invoice_pdf": "https://pay.stripe.com/invoice/acct_1S7tq5Q2jkTuccFD/test_YWNjdF8xUzd0cTVRMmprVHVjY0ZELF9UNzc3ME4wZ0xucURCV1BJUzRUQzNJcjZrcldncVZiLDE0OTI2MTg2NA0200x3BxH2Rv/pdf?s=ap",
+            "issuer": {
+                "type": "self"
+            },
+            "last_finalization_error": null,
+            "latest_revision": null,
+            "lines": {
+                "object": "list",
+                "data": [
+                    {
+                        "id": "il_1SAst9Q2jkTuccFDcc3wNJlk",
+                        "object": "line_item",
+                        "amount": 4999,
+                        "currency": "usd",
+                        "description": "1 × Business Plan Month (at $49.99 / month)",
+                        "discount_amounts": [],
+                        "discountable": true,
+                        "discounts": [],
+                        "invoice": "in_1SAstAQ2jkTuccFDXX57EfRt",
+                        "livemode": false,
+                        "metadata": {},
+                        "parent": {
+                            "invoice_item_details": null,
+                            "subscription_item_details": {
+                                "invoice_item": null,
+                                "proration": false,
+                                "proration_details": {
+                                    "credited_items": null
+                                },
+                                "subscription": "sub_1SAst9Q2jkTuccFDcnQF0jkb",
+                                "subscription_item": "si_T7777DcSvGMAMQ"
+                            },
+                            "type": "subscription_item_details"
+                        },
+                        "period": {
+                            "end": 1761313063,
+                            "start": 1758721063
+                        },
+                        "pretax_credit_amounts": [],
+                        "pricing": {
+                            "price_details": {
+                                "price": "price_1S7tu6Q2jkTuccFDPE9f4OOJ",
+                                "product": "prod_T41yQS1En12xtf"
+                            },
+                            "type": "price_details",
+                            "unit_amount_decimal": "4999"
+                        },
+                        "quantity": 1,
+                        "taxes": []
+                    }
+                ],
+                "has_more": false,
+                "total_count": 1,
+                "url": "/v1/invoices/in_1SAstAQ2jkTuccFDXX57EfRt/lines"
+            },
+            "livemode": false,
+            "metadata": {},
+            "next_payment_attempt": null,
+            "number": "HLVMAKPA-0001",
+            "on_behalf_of": null,
+            "parent": {
+                "quote_details": null,
+                "subscription_details": {
+                    "metadata": {},
+                    "subscription": "sub_1SAst9Q2jkTuccFDcnQF0jkb"
+                },
+                "type": "subscription_details"
+            },
+            "payment_settings": {
+                "default_mandate": null,
+                "payment_method_options": null,
+                "payment_method_types": null
+            },
+            "period_end": 1758721063,
+            "period_start": 1758721063,
+            "post_payment_credit_notes_amount": 0,
+            "pre_payment_credit_notes_amount": 0,
+            "receipt_number": null,
+            "rendering": null,
+            "shipping_cost": null,
+            "shipping_details": null,
+            "starting_balance": 0,
+            "statement_descriptor": null,
+            "status": "open",
+            "status_transitions": {
+                "finalized_at": 1758721064,
+                "marked_uncollectible_at": null,
+                "paid_at": null,
+                "voided_at": null
+            },
+            "subtotal": 4999,
+            "subtotal_excluding_tax": 4999,
+            "test_clock": null,
+            "total": 4999,
+            "total_discount_amounts": [],
+            "total_excluding_tax": 4999,
+            "total_pretax_credit_amounts": [],
+            "total_taxes": [],
+            "webhooks_delivered_at": null
+        },
+        "livemode": false,
+        "metadata": {},
+        "next_pending_invoice_item_invoice": null,
+        "on_behalf_of": null,
+        "pause_collection": null,
+        "payment_settings": {
+            "payment_method_options": null,
+            "payment_method_types": null,
+            "save_default_payment_method": "on_subscription"
+        },
+        "pending_invoice_item_interval": null,
+        "pending_setup_intent": null,
+        "pending_update": null,
+        "plan": {
+            "id": "price_1S7tu6Q2jkTuccFDPE9f4OOJ",
+            "object": "plan",
+            "active": true,
+            "amount": 4999,
+            "amount_decimal": "4999",
+            "billing_scheme": "per_unit",
+            "created": 1758009982,
+            "currency": "usd",
+            "interval": "month",
+            "interval_count": 1,
+            "livemode": false,
+            "metadata": {},
+            "meter": null,
+            "nickname": null,
+            "product": "prod_T41yQS1En12xtf",
+            "tiers_mode": null,
+            "transform_usage": null,
+            "trial_period_days": null,
+            "usage_type": "licensed"
+        },
+        "quantity": 1,
+        "schedule": null,
+        "start_date": 1758721063,
+        "status": "incomplete",
+        "test_clock": null,
+        "transfer_data": null,
+        "trial_end": null,
+        "trial_settings": {
+            "end_behavior": {
+                "missing_payment_method": "create_invoice"
+            }
+        },
+        "trial_start": null
+    }
+}

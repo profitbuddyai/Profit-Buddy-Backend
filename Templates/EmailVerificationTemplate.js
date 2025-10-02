@@ -1,0 +1,143 @@
+const EmailVerificationTemplate = (verifyLink = '') => {
+  return `<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+    <style>
+        body {
+            background-color: #F8F9FC;
+            color: #666666;
+            font-family: 'Google Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            background-color: #F8F9FC;
+            border: 1px solid lightgray;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 10px 0px;
+            width: 100%;
+            background-color: #282828;
+        }
+
+        .logo {
+            width: 60px;
+        }
+
+        .header h1 {
+            display: none;
+            margin: 0;
+            color: #ffffff;
+            font-size: 15px;
+        }
+
+        .content {
+            line-height: 1.5;
+            background-color: #ffffff;
+            padding: 20px 37px;
+            border-radius: 10px;
+            border: 1px solid lightgray;
+            margin: 20px 20px;
+        }
+
+        .content h1 {
+            color: #131313;
+            text-align: center;
+            margin: 0px;
+        }
+
+        .content p {
+            margin: 16px 0;
+            color: #666666;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background-color: #2dcb9e;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999999;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #2dcb9e;
+            text-decoration: none;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #171717;
+                color: #a1a1a1;
+            }
+
+            .container {
+                background-color: #000000;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .header h1 {
+                color: #ffffff;
+            }
+
+            .btn {
+                background-color: #24E698;
+            }
+
+            .footer {
+                color: #888888;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://profit-buddy-ai.vercel.app/assets/White-DLgQlnKq.png" alt="Profit Buddy Logo" class="logo" />
+            <h1>Profit Buddy</h1>
+        </div>
+        <div class="content">
+            <h1>Verify Your Email Address</h1>
+            <p>Hey Buddy,</p>
+            <p>Welcome to Profit Buddy! Please verify your email address to activate your account and start using our services.</p>
+            <p style="text-align: center;">
+                <a href="${verifyLink}" target="_blank" class="btn">Verify Email</a>
+            </p>
+            <p>If the button above doesn’t work, copy and paste the following link into your browser:</p>
+            <p><a href="${verifyLink}" target="_blank" style="color: #2dcb9e;">${verifyLink}</a></p>
+            <p>This link will expire in <strong>15 minutes</strong>.</p>
+            <p>If you didn’t create an account, you can safely ignore this email.</p>
+        </div>
+        <div class="footer">
+            <p style="font-size: 13px; color: #1d1d1d; font-weight: 600;">Questions? Contact Us <a href="mailto:admin@profitbuddy.ai">admin@profitbuddy.ai</a></p>
+            <p style="font-size: 15px;">Thanks,</p>
+        </div>
+    </div>
+</body>
+
+</html>`;
+};
+
+module.exports = { EmailVerificationTemplate };
