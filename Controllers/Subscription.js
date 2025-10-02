@@ -102,15 +102,14 @@ const createSubscription = async (req, res) => {
       await appliedCoupon.save();
     }
 
-    // Save subscription to DB
     const newSubscriptionData = {
       planName,
-      status: !hasSubscribedBefore ? 'trialing' : subscription.status,
-      subscriptionType: 'stripe',
+      status: subscription.status,
+      subscriptionType: appliedCoupon ? 'coupon' : 'stripe',
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscription.id,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date(subscription?.items?.data?.[0]?.current_period_start * 1000),
+      currentPeriodEnd: new Date(subscription?.items?.data?.[0]?.current_period_end * 1000),
       userRef: user._id,
     };
 
@@ -198,19 +197,18 @@ const cancelSubscription = async (req, res) => {
 const verifyCanSubscribe = async (req, res) => {
   const { userId } = req.query;
 
-  
   if (!userId) {
     return res.status(400).json({ error: 'userId is required' });
   }
-  
+
   try {
     // Get user
     const user = await UserModal.findById(userId).populate('currentSubscription');
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     const validCustomerId = await ensureStripeCustomer(user);
     let hasActiveOrTrialing = false;
 

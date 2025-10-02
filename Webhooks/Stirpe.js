@@ -19,16 +19,19 @@ const webHooks = async (req, res) => {
         const invoice = event.data.object;
         const item = invoice.lines.data[0];
         const subscriptionId = invoice.subscription || invoice.parent?.subscription_details?.subscription || item?.parent?.subscription_item_details?.subscription;
+
         if (!subscriptionId) {
           console.warn('⚠️ No subscription ID found for paid invoice:', invoice.id);
           break;
         }
 
+        const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+
         const subscription = await SubscriptionModel.findOne({ stripeSubscriptionId: subscriptionId });
         if (subscription) {
-          subscription.status = 'active';
-          subscription.currentPeriodEnd = new Date(item?.period?.end * 1000);
-          subscription.currentPeriodStart = new Date(item?.period?.start * 1000);
+          subscription.status = stripeSubscription.status; // trialing, active, canceled, past_due, etc.
+          subscription.currentPeriodStart = new Date(stripeSubscription?.items?.data?.[0]?.current_period_start * 1000);
+          subscription.currentPeriodEnd = new Date(stripeSubscription?.items?.data?.[0]?.current_period_end * 1000);
           await subscription.save();
         }
         break;
@@ -37,47 +40,63 @@ const webHooks = async (req, res) => {
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
         const item = invoice.lines.data[0];
-        const subscriptionId =
-          invoice.subscription || invoice.parent?.subscription_details?.subscription || invoice.lines?.data?.[0]?.parent?.subscription_item_details?.subscription;
+        const subscriptionId = invoice.subscription || invoice.parent?.subscription_details?.subscription || item?.parent?.subscription_item_details?.subscription;
+
         if (!subscriptionId) {
-          console.warn('⚠️ No subscription ID found for paid invoice:', invoice.id);
+          console.warn('No subscription ID found for failed invoice:', invoice.id);
           break;
         }
 
+        const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+
         const subscription = await SubscriptionModel.findOne({ stripeSubscriptionId: subscriptionId });
         if (subscription) {
-          subscription.status = 'past_due';
+          subscription.status = stripeSubscription.status; // will reflect past_due if payment failed
+          subscription.currentPeriodStart = new Date(stripeSubscription?.items?.data?.[0]?.current_period_start * 1000);
+          subscription.currentPeriodEnd = new Date(stripeSubscription?.items?.data?.[0]?.current_period_end * 1000);
           await subscription.save();
         }
         break;
       }
 
       case 'customer.subscription.deleted': {
-        const subscriptionId = event.data.object.id;
+        const stripeSubscription = event.data.object;
+        const subscription = await SubscriptionModel.findOne({ stripeSubscriptionId: stripeSubscription?.id });
 
-        const subscription = await SubscriptionModel.findOne({ stripeSubscriptionId: subscriptionId });
         if (subscription) {
           subscription.status = 'canceled';
           subscription.currentPeriodEnd = new Date();
           await subscription.save();
-
-          const user = await UserModal.findById(subscription.userRef);
-          if (user) {
-            user.currentSubscription = null;
-            user.stripeCustomerId = null;
-            await user.save();
-          }
         }
         break;
       }
 
-      case 'customer.subscription.updated': {
-        const subscriptionId = event.data.object.id;
-        const status = event.data.object.status;
-        const subscription = await SubscriptionModel.findOne({ stripeSubscriptionId: subscriptionId });
+      case 'customer.subscription.created': {
+        const stripeSubscription = event.data.object;
+        const subscription = await SubscriptionModel.findOne({ stripeSubscriptionId: stripeSubscription?.id });
+        const currentPeriodStart = new Date(stripeSubscription?.items?.data?.[0]?.current_period_start * 1000) || null;
+        const currentPeriodEnd = new Date(stripeSubscription?.items?.data?.[0]?.current_period_end * 1000) || null;
 
         if (subscription) {
-          subscription.status = status;
+          subscription.status = stripeSubscription?.status;
+          subscription.currentPeriodStart = currentPeriodStart;
+          subscription.currentPeriodEnd = currentPeriodEnd;
+          await subscription.save();
+        }
+
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const stripeSubscription = event.data.object;
+        const subscription = await SubscriptionModel.findOne({ stripeSubscriptionId: stripeSubscription?.id });
+        const currentPeriodStart = new Date(stripeSubscription?.items?.data?.[0]?.current_period_start * 1000) || null;
+        const currentPeriodEnd = new Date(stripeSubscription?.items?.data?.[0]?.current_period_end * 1000) || null;
+
+        if (subscription) {
+          subscription.status = stripeSubscription?.status;
+          subscription.currentPeriodStart = currentPeriodStart;
+          subscription.currentPeriodEnd = currentPeriodEnd;
           await subscription.save();
         }
 

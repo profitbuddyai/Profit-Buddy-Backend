@@ -9,7 +9,7 @@ const subscriptionSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['incomplete', 'incomplete_payment', 'active', 'canceled', 'past_due', 'unpaid'],
+      enum: ['incomplete', 'incomplete_payment', 'active', 'canceled', 'past_due', 'unpaid' , 'trialing'],
       default: 'incomplete',
     },
     subscriptionType: {
