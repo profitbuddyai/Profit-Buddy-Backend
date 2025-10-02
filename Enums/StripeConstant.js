@@ -5,8 +5,8 @@ const PRICE_IDS =
     ? {
         basic_monthly: 'price_1S7ttCQ2jkTuccFDz6xkSpSX',
         basic_yearly: 'price_1SBBhGQ2jkTuccFDNeWLFOdB',
-        business_monthly: 'price_1SBaOYE2ACc4UW7FTfAhLHSB',
-        business_yearly: 'price_1S7tu6Q2jkTuccFDPE9f4OOJ',
+        business_monthly: 'price_1S7tu6Q2jkTuccFDPE9f4OOJ',
+        business_yearly: 'price_1SBBnXQ2jkTuccFDDlDPvCi5',
       }
     : {
         basic_monthly: 'price_1SBaPHE2ACc4UW7FpSaF3dy1',
