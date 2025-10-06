@@ -12,7 +12,7 @@ const aiChat = async (req, res) => {
     const response = await openai.responses.create({
       prompt: {
         id: 'pmpt_68d69c2fe0c48190849ed5476334b2390b61bafdc42b0cf6', // your published prompt ID
-        version: '9', // optional, use latest if omitted
+        // version: '9', // optional, use latest if omitted
       },
       input: message,
     });

@@ -264,6 +264,7 @@ const extractGraphDataFromProduct = (product, days) => {
           salesRankHistory: SALES_RANK_HISTORY_CONSTANT,
           newPriceHistory: NEW_PRICE_HISTORY_CONSTANT,
           offerCountHistory: OFFER_COUNT_HISTORY_CONSTANT,
+          monthlySoldHistory: product?.monthlySoldHistory || [],
         },
         series: [
           { key: 'buyBox', source: 'buyboxHistory', step: 3, transform: priceTransform, fillNull: false },
@@ -271,6 +272,7 @@ const extractGraphDataFromProduct = (product, days) => {
           { key: 'salesRank', source: 'salesRankHistory', step: 2, transform: rankTransform, fillNull: true },
           { key: 'newPrice', source: 'newPriceHistory', step: 2, transform: priceTransform, fillNull: true },
           { key: 'offerCount', source: 'offerCountHistory', step: 2, transform: rankTransform, fillNull: true },
+          { key: 'monthlySold', source: 'monthlySoldHistory', step: 2, transform: rankTransform, fillNull: true },
         ],
       },
     };

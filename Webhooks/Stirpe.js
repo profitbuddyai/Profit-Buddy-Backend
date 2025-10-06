@@ -12,7 +12,6 @@ const webHooks = async (req, res) => {
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
 
-  console.log('🚚🚚', event);
   try {
     switch (event.type) {
       case 'invoice.payment_succeeded': {

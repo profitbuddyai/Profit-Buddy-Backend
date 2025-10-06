@@ -157,8 +157,6 @@ const buildFlatGraphData = (graphData, seriesConfigs, opts = {}) => {
     return entry;
   });
 
-  console.log(result);
-
   const eligibleFillKeys = seriesConfigs.filter((c) => c.fillNull && seriesMaps[c.key]).map((c) => c.key);
 
   if (forwardFill) {
@@ -179,8 +177,12 @@ const buildFlatGraphData = (graphData, seriesConfigs, opts = {}) => {
 const extractGraphData = (csv, config) => {
   const graphData = {};
   for (const [key, constant] of Object.entries(config.keys)) {
-    if (csv[constant]?.length) {
-      graphData[key] = csv[constant];
+    if (typeof constant === 'number') {
+      if (csv[constant]?.length) {
+        graphData[key] = csv[constant];
+      }
+    } else {
+      graphData[key] = constant;
     }
   }
   return graphData;

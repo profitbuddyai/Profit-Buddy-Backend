@@ -52,7 +52,7 @@ const register = async (req, res) => {
 
       return res.status(403).json({
         success: true,
-        message: "Your email already exists but not verified, We've sent you a verification link. Please check your email (and spam folder).",
+        message: "Your email already exists but not verified, We've just sent you a verification link. Please check your email (and spam folder).",
       });
     }
 
