@@ -9,6 +9,21 @@ const {
 
 const keepaToMs = (keepaMinute) => (Number(keepaMinute) + KEEPA_EPOCH_START_MINUTES) * 60000;
 
+const mapSellerData = (arr) => {
+  const result = [];
+  for (let i = 0; i < arr.length; i += 2) {
+    result.push({
+      date: keepaToMs(arr[i]),
+      sellerId: arr[i + 1] !== -1 && arr[i + 1] !== -2 && arr[i + 1] ? arr[i + 1] : null,
+    });
+  }
+  return result;
+};
+
+const getUniqueIds = (arr) => {
+  return [...new Set(arr.filter((id) => id != null && id !== -1))];
+};
+
 const parseToMap = (arr, step, transformValue = (v) => v) => {
   const map = new Map();
   if (!Array.isArray(arr)) return map;
@@ -21,15 +36,16 @@ const parseToMap = (arr, step, transformValue = (v) => v) => {
   return map;
 };
 
-const priceTransform = (v, divisor = 100) => {
+const priceTransform = (v, wantsNull = true, divisor = 100) => {
   if (v == null) return null;
-  if (v === -1) return null;
+  if (v === -1) return wantsNull ? null : -1;
   const n = Number(v);
   return Number.isNaN(n) ? null : n / divisor;
 };
 
-const rankTransform = (v) => {
-  if (v == null || v === -1) return null;
+const rankTransform = (v, wantsNull) => {
+  if (v == null) return null;
+  if (v === -1) return wantsNull ? null : -1;
   const n = Number(v);
   return Number.isNaN(n) ? null : n;
 };
@@ -37,7 +53,10 @@ const rankTransform = (v) => {
 const clampData = (data, days = '90') => {
   let formattedDays = Number(days);
 
-  const now = new Date();
+  let now = new Date();
+  const halfDayMs = 12 * 60 * 60 * 1000; // 12 hours in ms
+  now = new Date(Date.now() + halfDayMs);
+
   const todayTs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); // local start-of-day
   let startDateTs = null;
   if (formattedDays) {
@@ -108,17 +127,20 @@ const forwardFillSeries = (result, keys, fillInitialWithFirst = false) => {
 
   // 2) Backward fill the rest of the series (propagate last seen value forward)
 
-  // console.log(result);
   keys.forEach((k) => {
     let last = null;
+
     for (let i = 0; i < result.length; i++) {
       const v = result[i][k];
-      if (v === null || v === undefined) {
-        if (last !== null && last !== undefined) {
-          result[i][k] = last;
-        }
+
+      if ((v === null || v === undefined) && last !== null && last !== undefined) {
+        result[i][k] = last;
       } else {
         last = result[i][k];
+      }
+
+      if (result[i][k] === -1) {
+        result[i][k] = null;
       }
     }
   });
@@ -137,9 +159,9 @@ const buildFlatGraphData = (graphData, seriesConfigs, opts = {}) => {
   const seriesMaps = {};
   const tsSet = new Set();
 
-  seriesConfigs.forEach(({ key, source, step, transform }) => {
+  seriesConfigs.forEach(({ key, source, step, transform, fillNull }) => {
     const arr = graphData[source] || [];
-    const map = parseToMap(arr, step, (v) => transform(v, priceDivisor));
+    const map = parseToMap(arr, step, (v) => transform(v, fillNull, priceDivisor));
     seriesMaps[key] = map;
     map.forEach((_, t) => tsSet.add(t));
   });
@@ -157,7 +179,7 @@ const buildFlatGraphData = (graphData, seriesConfigs, opts = {}) => {
     return entry;
   });
 
-  const eligibleFillKeys = seriesConfigs.filter((c) => c.fillNull && seriesMaps[c.key]).map((c) => c.key);
+  const eligibleFillKeys = seriesConfigs.filter((c) => seriesMaps[c.key]).map((c) => c.key);
 
   if (forwardFill) {
     forwardFillSeries(result, eligibleFillKeys, fillInitialWithFirst);
@@ -215,4 +237,4 @@ const getAggregateHistoryDays = (csv) => {
   const diffDays = Math.floor((latest - earliest) / (1000 * 60 * 60 * 24));
   return diffDays + 1;
 };
-module.exports = { extractGraphData, buildFlatGraphData, priceTransform, rankTransform, keepaToMs, getAggregateHistoryDays };
+module.exports = { extractGraphData, buildFlatGraphData, priceTransform, rankTransform, keepaToMs, getAggregateHistoryDays, parseToMap, mapSellerData, getUniqueIds };

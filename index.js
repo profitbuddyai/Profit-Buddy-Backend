@@ -7,7 +7,8 @@ const connectDB = require('./Configurations/Database.js');
 const { webHooks } = require('./Webhooks/Stirpe.js');
 const { sendEmail } = require('./Services/Nodemailer.service.js');
 const { ForgotPasswordTemplate } = require('./Templates/ForgotPasswordTemplate.js');
-const { NODE_ENV } = require('./Enums/OurConstant.js');
+const { NODE_ENV, buyBoxSellerIds } = require('./Enums/OurConstant.js');
+const { keepaToMs, parseToMap } = require('./Utils/GraphCsvUtils.js');
 
 const app = express();
 
@@ -31,14 +32,28 @@ app.get('/', (req, res) => {
   res.send('Server online and ready for lift-off!');
 });
 app.use('/api/v1', mainRouter);
+
 // const abc = async () => {
 //   try {
-//     sendEmail('hanzalahsamana789@gmail.com', 'Reset Your Profit Buddy Password', ForgotPasswordTemplate('https'));
+//     sendEmail('', 'Reset Your Profit Buddy Password', ForgotPasswordTemplate('https'));
 //   } catch (error) {
 //     console.log(error);
 //   }
 // };
 // abc();
+
+// console.log(new Date(keepaToMs(7756352)));
+// const id = () => {
+//   const data = [];
+//   for (let i = 1; i < buyBoxSellerIds.length; i += 2) {
+//     if (data.includes(buyBoxSellerIds[i])) continue;
+//     data.push(buyBoxSellerIds[i]);
+//   }
+//   return data;
+// };
+
+// console.log(id());
+
 (async () => {
   try {
     await connectDB();

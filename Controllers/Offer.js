@@ -1,6 +1,8 @@
 const { QUERY_FOR_FETCH_OFFER_DATA } = require('../Enums/KeepaConstant');
+const { buyBoxSellerIds } = require('../Enums/OurConstant');
 const { getSellerInfoFromKeepa, getProductsFromKeepa } = require('../Services/Keepa.service');
 const { enrichOffersWithSeller, extractOffersFromProduct } = require('../Utils/ExtractNeededData');
+const { mapSellerData, getUniqueIds } = require('../Utils/GraphCsvUtils');
 
 const getOffersOfProduct = async (req, res) => {
   try {
@@ -20,17 +22,32 @@ const getOffersOfProduct = async (req, res) => {
     if (!finalizedOffer || Object.keys(finalizedOffer)?.length === 0) {
       return res.status(400).json({ success: false, message: 'Oops, This product has no offers.' });
     }
+    const buyBoxSellerHistory = mapSellerData(offersResult?.products?.[0]?.buyBoxSellerIdHistory || []);
 
-    const sellerIds = [...new Set(finalizedOffer.offers.map((o) => o.sellerId))];
-    const sellerIdParam = sellerIds.join(',');
+    const sellerIds = [...finalizedOffer.offers.map((offer) => offer.sellerId), ...buyBoxSellerHistory?.map((obj) => obj.sellerId)];
+    const uniqueSellerIds = getUniqueIds(sellerIds);
+    const sellerIdParam = uniqueSellerIds.join(',');
 
     const sellerInfo = await getSellerInfoFromKeepa(sellerIdParam);
 
     const enrichedOffers = enrichOffersWithSeller(finalizedOffer, sellerInfo);
 
-    return res.status(200).json({ success: true, asin: asin, offer: enrichedOffers });
+    const sellerData = Object.values(sellerInfo)?.reduce((acc, seller) => {
+      acc[seller?.sellerId] = {
+        name: seller?.sellerName,
+        ratingCount: seller?.currentRatingCount,
+        rating: seller?.currentRating ? (seller?.currentRating / 100) * 5 : 0,
+        id: seller?.sellerId,
+        sellerType: seller?.hasFBA,
+      };
+      return acc;
+    }, {});
+
+    return res.status(200).json({ success: true, asin: asin, offer: enrichedOffers, buyBoxSellerHistory, sellerData });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Unable to fetch offers from Keepa at the moment.' });
+    console.error(error);
+
+    return res.status(500).json({ success: false, message: 'Unable to fetch offers from Keepa at the moment.', error });
   }
 };
 

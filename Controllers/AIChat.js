@@ -33,7 +33,8 @@ const aiChat = async (req, res) => {
     console.error('AI Chat Error:', err);
     res.status(500).json({
       success: false,
-      error: err.message,
+      message:'something went wrong while genrating ai responce.',
+      error: err,
     });
   }
 };

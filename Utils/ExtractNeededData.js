@@ -131,6 +131,7 @@ const extractNeededDataFromHistoryProduct = (product) => {
 
   return extractedData;
 };
+
 const extractOffersFromProduct = (product) => {
   if (!product?.liveOffersOrder?.length || !product?.offers?.length) return {};
 
@@ -268,11 +269,11 @@ const extractGraphDataFromProduct = (product, days) => {
         },
         series: [
           { key: 'buyBox', source: 'buyboxHistory', step: 3, transform: priceTransform, fillNull: false },
-          { key: 'amazon', source: 'amazonHistory', step: 2, transform: priceTransform, fillNull: true },
-          { key: 'salesRank', source: 'salesRankHistory', step: 2, transform: rankTransform, fillNull: true },
-          { key: 'newPrice', source: 'newPriceHistory', step: 2, transform: priceTransform, fillNull: true },
-          { key: 'offerCount', source: 'offerCountHistory', step: 2, transform: rankTransform, fillNull: true },
-          { key: 'monthlySold', source: 'monthlySoldHistory', step: 2, transform: rankTransform, fillNull: true },
+          { key: 'amazon', source: 'amazonHistory', step: 2, transform: priceTransform, fillNull: false },
+          { key: 'salesRank', source: 'salesRankHistory', step: 2, transform: rankTransform, fillNull: false },
+          { key: 'newPrice', source: 'newPriceHistory', step: 2, transform: priceTransform, fillNull: false },
+          { key: 'offerCount', source: 'offerCountHistory', step: 2, transform: rankTransform, fillNull: false },
+          { key: 'monthlySold', source: 'monthlySoldHistory', step: 2, transform: rankTransform, fillNull: false },
         ],
       },
     };
