@@ -13,7 +13,7 @@ const submitSupportQuery = async (req, res) => {
       });
     }
 
-    await sendEmail('support@profitbuddy.ai', 'New Support Query Submitted', SupportQueryTemplate(user?.email, query));
+    await sendEmail('support@innercircleacd.com', 'New Support Query Submitted', SupportQueryTemplate(user?.email, query));
 
     return res.status(200).json({
       success: true,
