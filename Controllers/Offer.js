@@ -1,3 +1,4 @@
+const { AMAZON_SELLER_ID } = require('../Enums/AmazonConstant');
 const { QUERY_FOR_FETCH_OFFER_DATA } = require('../Enums/KeepaConstant');
 const { buyBoxSellerIds } = require('../Enums/OurConstant');
 const { getSellerInfoFromKeepa, getProductsFromKeepa } = require('../Services/Keepa.service');
@@ -23,10 +24,17 @@ const getOffersOfProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Oops, This product has no offers.' });
     }
     const buyBoxSellerHistory = mapSellerData(offersResult?.products?.[0]?.buyBoxSellerIdHistory || []);
+    const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000;
 
-    const sellerIds = [...finalizedOffer.offers.map((offer) => offer.sellerId), ...buyBoxSellerHistory?.map((obj) => obj.sellerId)];
-    const uniqueSellerIds = getUniqueIds(sellerIds);
+    const recentBuyBoxSellers = (buyBoxSellerHistory || []).filter((obj) => obj.date >= ninetyDaysAgo).map((obj) => obj.sellerId);
+    const sellerIds = [...finalizedOffer.offers.map((offer) => offer.sellerId), ...recentBuyBoxSellers];
+    let uniqueSellerIds = getUniqueIds(sellerIds);
+    if (uniqueSellerIds.length > 100) {
+      uniqueSellerIds = uniqueSellerIds.slice(0, 100);
+    }
+
     const sellerIdParam = uniqueSellerIds.join(',');
+    
 
     const sellerInfo = await getSellerInfoFromKeepa(sellerIdParam);
 
@@ -38,7 +46,7 @@ const getOffersOfProduct = async (req, res) => {
         ratingCount: seller?.currentRatingCount,
         rating: seller?.currentRating ? (seller?.currentRating / 100) * 5 : 0,
         id: seller?.sellerId,
-        sellerType: seller?.hasFBA,
+        sellerType: seller?.sellerId === AMAZON_SELLER_ID ? 'AMZ' : seller?.hasFBA ? 'FBA' : 'FBM',
       };
       return acc;
     }, {});

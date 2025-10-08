@@ -15,6 +15,7 @@ const { gramsToPounds, gramsToOunce, mmToInch, mmToCm } = require('./Converter')
 const { buildFlatGraphData, extractGraphData, priceTransform, rankTransform, getAggregateHistoryDays } = require('./GraphCsvUtils');
 const { getFBAInboundPlacementFees, CalcShippingFee, calculateStorageFee } = require('./FeeCalc');
 const { HistoryModal } = require('../Models/HistoryModel');
+const { AMAZON_SELLER_ID } = require('../Enums/AmazonConstant');
 
 const extractNeededDataFromProduct = (product) => {
   if (!product) return {};
@@ -144,7 +145,7 @@ const extractOffersFromProduct = (product) => {
       const stock = offer.stockCSV?.length ? offer.stockCSV.at(-1) : false;
       const price = offer.offerCSV?.length >= 2 ? offer.offerCSV.at(-2) / 100 : null;
 
-      let seller = offer.isAmazon ? 'AMZ' : offer.isFBA ? 'FBA' : 'FBM';
+      let seller = offer.sellerId === AMAZON_SELLER_ID ? 'AMZ' : offer.isFBA ? 'FBA' : 'FBM';
 
       const shippingFee = CalcShippingFee(product?.packageWeight ?? product?.itemWeight);
       const finalPrice = seller === 'FBM' ? price + shippingFee : price;

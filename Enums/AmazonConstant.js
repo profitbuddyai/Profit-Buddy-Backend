@@ -1,3 +1,5 @@
+const AMAZON_SELLER_ID = 'ATVPDKIKX0DER';
+
 const FBA_Inbound_Placement_Fees_Chart = {
   smallStandard: {
     maxDimensions: [15, 12, 0.75],
@@ -94,4 +96,4 @@ const FBA_Storage_Fee_Chart = {
   },
 };
 
-module.exports = { FBA_Inbound_Placement_Fees_Chart, FBA_Storage_Fee_Chart };
+module.exports = { AMAZON_SELLER_ID, FBA_Inbound_Placement_Fees_Chart, FBA_Storage_Fee_Chart };

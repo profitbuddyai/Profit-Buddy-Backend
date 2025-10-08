@@ -21,7 +21,7 @@ const mapSellerData = (arr) => {
 };
 
 const getUniqueIds = (arr) => {
-  return [...new Set(arr.filter((id) => id != null && id !== -1))];
+  return [...new Set(arr.filter((id) => id != null && id !== -1 && id !== '-1' && id !== '-2'))];
 };
 
 const parseToMap = (arr, step, transformValue = (v) => v) => {
