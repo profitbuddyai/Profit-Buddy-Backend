@@ -19,6 +19,7 @@ const userRegisterValidate = (req, res, next) => {
     terms: Joi.boolean().valid(true).messages({
       'any.only': 'Please accept the Terms and Conditions',
     }),
+    inviteToken:Joi.string().optional(),
   });
 
   const { error } = schema.validate(req.body, { abortEarly: false });

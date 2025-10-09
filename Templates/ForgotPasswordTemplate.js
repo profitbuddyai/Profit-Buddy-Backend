@@ -23,6 +23,7 @@ const ForgotPasswordTemplate = (resetLink = '') => {
             border: 1px solid lightgray;
             border-radius: 10px;
             overflow: hidden;
+            font-family: 'Google Sans', 'sans-serif' !important;
         }
 
         .header {
@@ -33,7 +34,8 @@ const ForgotPasswordTemplate = (resetLink = '') => {
         }
 
         .logo {
-            width: 60px;
+             width: 200px;
+      padding: 15px 0px;
         }
 
         .header h1 {

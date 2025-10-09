@@ -8,9 +8,11 @@ const { ForgotPasswordTemplate } = require('../Templates/ForgotPasswordTemplate'
 const { generateHash, compareHash } = require('../Utils/BCrypt');
 const { generateJwtToken } = require('../Utils/Jwt');
 const crypto = require('crypto');
+const { InvitationModel } = require('../Models/InvitationModel');
+const { SubscriptionModel } = require('../Models/SubscriptionModel');
 
 const register = async (req, res) => {
-  const { email, password, terms } = req.body;
+  const { email, password, terms, inviteToken } = req.body;
 
   try {
     if (!email || !password) {
@@ -18,44 +20,55 @@ const register = async (req, res) => {
     }
 
     const normalizedEmail = email.toLowerCase();
-    let user = await UserModal.findOne({ email: normalizedEmail }).select('+password +verifyToken +verifyTokenExpiry');
 
+    // 🧩 STEP 1: Check if invited
+    let invitation = null;
+    if (inviteToken) {
+      invitation = await InvitationModel.findOne({ token: inviteToken });
+
+      if (!invitation) {
+        return res.status(400).json({ success: false, message: 'Invalid or expired invitation link.' });
+      }
+
+      if (invitation.email.toLowerCase() !== normalizedEmail) {
+        return res.status(400).json({ success: false, message: 'This invitation was sent to a different email.' });
+      }
+    }
+
+    // 🧩 STEP 2: Check if user exists
+    let user = await UserModal.findOne({ email: normalizedEmail }).select('+password +verifyToken +verifyTokenExpiry');
     const hashedPassword = await generateHash(password, 10);
     const verifyToken = crypto.randomBytes(32).toString('hex');
-    const verifyTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 min
+    const verifyTokenExpiry = Date.now() + 15 * 60 * 1000;
     const verifyLink = `${profitBuddy?.baseUrl}/verify?token=${verifyToken}`;
 
     if (user) {
       if (user.verified) {
-        return res.status(409).json({
-          success: false,
-          message: 'User with this email already exists. Please log in.',
-        });
+        return res.status(409).json({ success: false, message: 'User with this email already exists. Please log in.' });
       }
 
       const tokenExistsAndValid = user.verifyToken && user.verifyTokenExpiry && new Date(user.verifyTokenExpiry) > Date.now();
-
       if (tokenExistsAndValid) {
         const timeLeft = Math.ceil((new Date(user.verifyTokenExpiry) - Date.now()) / 60000);
         return res.status(403).json({
           success: false,
-          message: `Your email is not verified. A verification link was already sent. Please check your inbox or try again in ${timeLeft} minute(s).`,
+          message: `Your email is not verified. Please check your inbox or try again in ${timeLeft} minute(s).`,
         });
       }
 
       user.verifyToken = verifyToken;
       user.verifyTokenExpiry = verifyTokenExpiry;
       user.verified = false;
-
       await user.save();
-      await sendEmail(user.email, 'Verify Your Email Address', EmailVerificationTemplate(verifyLink));
 
+      await sendEmail(user.email, 'Verify Your Email Address', EmailVerificationTemplate(verifyLink));
       return res.status(403).json({
         success: true,
-        message: "Your email already exists but not verified, We've just sent you a verification link. Please check your email (and spam folder).",
+        message: "Your email already exists but not verified, We've sent you a verification link.",
       });
     }
 
+    // 🧩 STEP 3: Create new user
     const newUser = await new UserModal({
       email: normalizedEmail,
       password: hashedPassword,
@@ -66,11 +79,30 @@ const register = async (req, res) => {
     });
 
     await newUser.save();
+
+    if (invitation) {
+      const newSubscription = await SubscriptionModel.create({
+        userRef: newUser._id,
+        planName: 'full_access',
+        subscriptionType: 'invite',
+        status: 'active',
+      });
+
+      newUser.currentSubscription = newSubscription._id;
+      await newUser.save();
+
+      invitation.status = 'accepted';
+      invitation.acceptedAt = new Date();
+      await invitation.save();
+    }
+
     await sendEmail(normalizedEmail, 'Verify Your Email Address', EmailVerificationTemplate(verifyLink));
 
     return res.status(201).json({
       success: true,
-      message: "You've successfully registered. We've sent you an email verification link — please check your inbox (and spam folder).",
+      message: invitation
+        ? "You've successfully registered with full access. Please verify your email to activate your account."
+        : "You've successfully registered. We've sent you an email verification link — please check your inbox.",
     });
   } catch (error) {
     console.error('Registration Error:', error);
@@ -79,7 +111,7 @@ const register = async (req, res) => {
       return res.status(400).json({ message: messages[0] });
     }
 
-    return res.status(500).json({ message: 'Internal server error.' });
+    return res.status(500).json({ message: error?.message || 'Internal server error.' });
   }
 };
 

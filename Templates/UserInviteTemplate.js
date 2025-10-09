@@ -1,10 +1,10 @@
-const SupportQueryTemplate = (userEmail = '', query = '') => {
+const UserInviteTemplate = (inviteLink = '') => {
   return `<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <title>New Support Query</title>
+  <title>You're Invited to Join Profit Buddy</title>
   <style>
     body {
       background-color: #F8F9FC;
@@ -34,7 +34,7 @@ const SupportQueryTemplate = (userEmail = '', query = '') => {
     }
 
     .logo {
-       width: 200px;
+      width: 200px;
       padding: 15px 0px;
     }
 
@@ -65,14 +65,14 @@ const SupportQueryTemplate = (userEmail = '', query = '') => {
       color: #666666;
     }
 
-    .highlight {
-      background: #F8F9FC;
-      border: 1px solid #e2e2e2;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #333333;
-      white-space: pre-wrap;
+    .btn {
+      display: inline-block;
+      padding: 10px 25px;
+      background-color: #2dcb9e;
+      color: #ffffff !important;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
     }
 
     .footer {
@@ -102,6 +102,10 @@ const SupportQueryTemplate = (userEmail = '', query = '') => {
         color: #ffffff;
       }
 
+      .btn {
+        background-color: #24E698;
+      }
+
       .footer {
         color: #888888;
         font-size: 15px;
@@ -118,18 +122,21 @@ const SupportQueryTemplate = (userEmail = '', query = '') => {
     </div>
 
     <div class="content">
-      <h1>New Support Query</h1>
-      <p>Hello Admin,</p>
-      <p>A new support query has been submitted by:</p>
-      <p><strong>Email:</strong> ${userEmail}</p>
-      <p><strong>Message:</strong></p>
-      <div class="highlight">${query}</div>
-      <p>Please respond to the user at the email address provided.</p>
+      <h1>You're Invited to Join Profit Buddy</h1>
+      <p>Hey Buddy,</p>
+      <p>You’ve been invited to join <strong>Profit Buddy</strong>. Once you accept, you’ll gain access to your admin’s workspace and tools — no subscription needed.</p>
+      <p style="text-align: center;">
+        <a href="${inviteLink}" target="_blank" class="btn">Accept Invitation</a>
+      </p>
+      <p>If the button above doesn’t work, copy and paste this link into your browser:</p>
+      <p><a href="${inviteLink}" target="_blank" style="color: #2dcb9e;">${inviteLink}</a></p>
+      <p>This invitation will expire automatically if not accepted soon.</p>
+      <p>If you weren’t expecting this, please ignore this email.</p>
     </div>
 
     <div class="footer">
       <p style="font-size: 13px; color: #1d1d1d; font-weight: 600;">
-        Profit Buddy Support Notification
+        Questions? Contact Us <a href="mailto:admin@profitbuddy.ai">admin@profitbuddy.ai</a>
       </p>
       <p style="font-size: 15px;">Thanks,</p>
     </div>
@@ -139,4 +146,4 @@ const SupportQueryTemplate = (userEmail = '', query = '') => {
 </html>`;
 };
 
-module.exports = { SupportQueryTemplate };
+module.exports = { UserInviteTemplate };

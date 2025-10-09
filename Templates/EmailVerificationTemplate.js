@@ -23,6 +23,7 @@ const EmailVerificationTemplate = (verifyLink = '') => {
             border: 1px solid lightgray;
             border-radius: 10px;
             overflow: hidden;
+            font-family: 'Google Sans', 'sans-serif' !important;
         }
 
         .header {
@@ -33,7 +34,8 @@ const EmailVerificationTemplate = (verifyLink = '') => {
         }
 
         .logo {
-            width: 60px;
+            width: 200px;
+      padding: 15px 0px;
         }
 
         .header h1 {
