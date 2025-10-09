@@ -2,86 +2,45 @@ const { STRIPE_SECRET_KEY } = require('../Enums/StripeConstant');
 
 const stripe = require('stripe')(STRIPE_SECRET_KEY);
 
-const createStripeSubscription = async (customerId, priceId, trialDays = 30) => {
-  const subscription = await stripe.subscriptions.create({
-    customer: customerId,
-    items: [{ price: priceId }],
-    trial_period_days: trialDays,
-    payment_behavior: 'default_incomplete',
-    payment_settings: { save_default_payment_method: 'on_subscription' },
-    expand: ['latest_invoice.payment_intent', 'items.data.price.product'],
-  });
+const createStripeSubscription = async (customerId, priceId, trialDays = null) => {
+  try {
+    const subscriptionData = {
+      customer: customerId,
+      items: [{ price: priceId }],
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent', 'items.data.price.product'],
+    };
 
-  // Create SetupIntent for saving card
-  const setupIntent = await stripe.setupIntents.create({
-    customer: customerId,
-  });
+    if (trialDays) {
+      subscriptionData.trial_period_days = trialDays;
+    }
 
-  const item = subscription.items.data[0];
-  const trialEnd = subscription.trial_end;
+    const subscription = await stripe.subscriptions.create(subscriptionData);
 
-  const summary = {
-    subscriptionId: subscription.id,
-    status: subscription.status,
-    planName: item?.price?.product?.name,
-    currency: item?.price?.currency,
-    amount: item?.price?.unit_amount / 100,
-    trialStart: new Date(subscription.trial_start * 1000),
-    trialEnd: new Date(trialEnd * 1000),
-    nextBillingDate: new Date(trialEnd * 1000),
-  };
-
-  return {
-    clientSecret: setupIntent.client_secret, // <-- use this on frontend
-    subscription,
-    summary,
-  };
+    return subscription;
+  } catch (error) {
+    console.error('Stripe subscription error:', error);
+    throw error;
+  }
 };
-
-// const createStripeSubscription = async (customerId, priceId) => {
-//   try {
-//     const subscription = await stripe.subscriptions.create({
-//       customer: customerId,
-//       items: [
-//         {
-//           price: priceId,
-//         },
-//       ],
-//       payment_behavior: 'default_incomplete',
-//       payment_settings: { save_default_payment_method: 'on_subscription' },
-//       billing_mode: { type: 'flexible' },
-//       expand: ['latest_invoice.confirmation_secret', 'items.data.price.product'],
-//     });
-//     const invoice = subscription.latest_invoice;
-//     const item = invoice.lines.data[0];
-//     const item2 = subscription?.items?.data[0];
-
-//     const summary = {
-//       subscriptionId: subscription?.id,
-//       status: subscription?.status,
-//       planName: item2?.price?.product?.name || 'Plan',
-//       currency: item?.currency,
-//       amount: item?.amount / 100,
-//       description: item?.description,
-//       startDate: new Date(item?.period?.start * 1000),
-//       endDate: new Date(item?.period?.end * 1000),
-//     };
-
-//     return {
-//       clientSecret: subscription.latest_invoice.confirmation_secret.client_secret,
-//       subscription: subscription,
-//       summary: summary,
-//     };
-//   } catch (error) {
-//     console.error('Stripe subscription error:', error);
-//     throw error;
-//   }
-// };
 
 const getStripeSubscription = async (subscriptionId) => {
   try {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     return subscription;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getUserSubscritionsList = async (stripeCustomerId) => {
+  try {
+    const allSubs = await stripe.subscriptions.list({
+      customer: stripeCustomerId,
+      status: 'all',
+      expand: ['data.plan.product'],
+    });
+    return allSubs;
   } catch (error) {
     throw error;
   }
@@ -107,7 +66,13 @@ const createStripeCustomer = async ({ email, name }) => {
 };
 
 const attachPaymentMethodToStripeCustomer = async (customerId, paymentMethodId) => {
-  await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+  await stripe.customers.update(customerId, {
+    invoice_settings: { default_payment_method: paymentMethodId },
+  });
+  return paymentMethodId;
+};
+
+const setAsDefaultPaymentMethod = async (customerId, paymentMethodId) => {
   await stripe.customers.update(customerId, {
     invoice_settings: { default_payment_method: paymentMethodId },
   });
@@ -131,6 +96,7 @@ const ensureStripeCustomer = async (user) => {
       }
     }
   }
+
   if (!customerId) {
     const newCustomer = await createStripeCustomer({ email: user.email, name: user?.userName });
     customerId = newCustomer.id;
@@ -155,4 +121,58 @@ const getPaidInvoicesOfCustomer = async (customerId) => {
   }
 };
 
-module.exports = { createStripeSubscription, getStripeSubscription, cancelStripeSubscription, createStripeCustomer, attachPaymentMethodToStripeCustomer, ensureStripeCustomer };
+const getStripeUser = async (stripeCustomerId) => {
+  try {
+    const customer = await stripe.customers.retrieve(stripeCustomerId);
+    return customer;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getUserPaymentMethod = async (paymentMethodId) => {
+  try {
+    const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+    return paymentMethod;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getUserPaymentMethodsList = async (stripeCustomerId) => {
+  try {
+    const paymentMethods = await stripe.paymentMethods.list({
+      customer: stripeCustomerId,
+      type: 'card',
+    });
+    return paymentMethods;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const createStripeSetupIntent = async (stripeCustomerId) => {
+  try {
+    const setupIntent = await stripe.setupIntents.create({
+      customer: stripeCustomerId,
+    });
+    return setupIntent;
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports = {
+  createStripeSubscription,
+  getUserSubscritionsList,
+  getStripeSubscription,
+  cancelStripeSubscription,
+  createStripeCustomer,
+  attachPaymentMethodToStripeCustomer,
+  setAsDefaultPaymentMethod,
+  ensureStripeCustomer,
+  getUserPaymentMethod,
+  getUserPaymentMethodsList,
+  getStripeUser,
+  createStripeSetupIntent,
+};

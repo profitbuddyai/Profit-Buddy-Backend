@@ -6,6 +6,7 @@ const { upsertHistory } = require('../Controllers/History');
 const { createSubscription, cancelSubscription, createSetupIntent, verifyCoupon, setDefaultPaymentMethod } = require('../Controllers/Subscription');
 const { generateCoupon, deleteCoupon } = require('../Controllers/Admin/Coupon');
 const { submitSupportQuery } = require('../Controllers/Support');
+const { inviteUser, grantFullAccess } = require('../Controllers/Admin/AddUser');
 const router = express.Router();
 
 router.post('/register', userRegisterValidate, register);
@@ -19,18 +20,16 @@ router.post('/request-delete-account', tokenChecker, requestDeleteAccount);
 router.post('/delete-account', tokenChecker, deleteAccount);
 router.post('/update-profile', tokenChecker, updateProfile);
 router.post('/submit-support-query', tokenChecker, submitSupportQuery);
-// router.post('/create-setup-intent', tokenChecker, createSetupIntent);
 
 router.post('/create-subscription', tokenChecker, createSubscription);
 router.post('/cancel-subscription', tokenChecker, cancelSubscription);
-router.post('/generate-coupon', tokenChecker, generateCoupon);
 router.post('/verify-coupon', tokenChecker, verifyCoupon);
 
+router.post('/generate-coupon', tokenChecker, generateCoupon);
+router.post('/invite-user', tokenChecker, inviteUser);
+router.post('/grant-full-access', tokenChecker, grantFullAccess);
 
 router.post('/create-setup-intent', tokenChecker, createSetupIntent);
 router.post('/set-defualt-payment-method', tokenChecker, setDefaultPaymentMethod);
-router.delete('/delete-coupon/:id', tokenChecker, deleteCoupon);
-
-// router.post('/webhook', express.raw({ type: 'application/json' }), webHooks);
 
 module.exports = router;

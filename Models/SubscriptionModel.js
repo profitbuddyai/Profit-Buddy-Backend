@@ -14,7 +14,7 @@ const subscriptionSchema = new Schema(
     },
     subscriptionType: {
       type: String,
-      enum: ['stripe', 'coupon'],
+      enum: ['stripe', 'coupon' , 'invite'],
       required: true,
     },
     currentPeriodStart: { type: Date },

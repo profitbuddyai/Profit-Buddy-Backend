@@ -11,6 +11,7 @@ const { aiChat } = require('../Controllers/AIChat');
 const { checkAiQuota } = require('../MiddleWares/CheckQuotas');
 const { getCoupons } = require('../Controllers/Admin/Coupon');
 const { verifyCanSubscribe, getOrSetDefaultPaymentMethod } = require('../Controllers/Subscription');
+const { getInvitedUsers } = require('../Controllers/Admin/AddUser');
 
 router.get('/products', tokenChecker, getProducts);
 router.get('/search-product', tokenChecker, searchProducts);
@@ -25,6 +26,7 @@ router.get('/history', tokenChecker, getHistoryData);
 router.get('/ai-chat', tokenChecker, checkAiQuota, aiChat);
 router.get('/coupons', tokenChecker, getCoupons);
 router.get('/verifyCanSubscribe', tokenChecker, verifyCanSubscribe);
-router.get('/defualt-payment-method', tokenChecker, getOrSetDefaultPaymentMethod );
+router.get('/defualt-payment-method', tokenChecker, getOrSetDefaultPaymentMethod);
+router.get('/invited-users', tokenChecker, getInvitedUsers);
 
 module.exports = router;
