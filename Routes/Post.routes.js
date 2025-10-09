@@ -6,7 +6,7 @@ const { upsertHistory } = require('../Controllers/History');
 const { createSubscription, cancelSubscription, createSetupIntent, verifyCoupon, setDefaultPaymentMethod } = require('../Controllers/Subscription');
 const { generateCoupon, deleteCoupon } = require('../Controllers/Admin/Coupon');
 const { submitSupportQuery } = require('../Controllers/Support');
-const { inviteUser } = require('../Controllers/Admin/AddUser');
+const { inviteUser, grantFullAccess } = require('../Controllers/Admin/AddUser');
 const router = express.Router();
 
 router.post('/register', userRegisterValidate, register);
@@ -27,6 +27,7 @@ router.post('/verify-coupon', tokenChecker, verifyCoupon);
 
 router.post('/generate-coupon', tokenChecker, generateCoupon);
 router.post('/invite-user', tokenChecker, inviteUser);
+router.post('/grant-full-access', tokenChecker, grantFullAccess);
 
 router.post('/create-setup-intent', tokenChecker, createSetupIntent);
 router.post('/set-defualt-payment-method', tokenChecker, setDefaultPaymentMethod);

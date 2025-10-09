@@ -26,15 +26,25 @@ const inviteUser = async (req, res) => {
 
     const normalizedEmail = email.toLowerCase();
 
-    const existingUser = await UserModal.findOne({ email: normalizedEmail });
+    const existingUser = await UserModal.findOne({ email: normalizedEmail }).populate('currentSubscription');
 
     if (existingUser) {
-      return res.status(409).json({
+      const subscription = existingUser?.currentSubscription;
+
+      if (subscription && (subscription.status === 'active' || subscription.status === 'trialing')) {
+        return res.status(409).json({
+          success: false,
+          message: 'This user already has an active subscription.',
+        });
+      }
+
+      return res.status(200).json({
         success: false,
-        message: 'This email is already have an account.',
+        alreadyExists: true,
+        message: 'This user already exists but does not have an active subscription. Do you want to grant him full access?',
+        userId: existingUser._id,
       });
     }
-
     const existingInvite = await InvitationModel.findOne({
       email: normalizedEmail,
       inviter: inviterId,
@@ -42,9 +52,6 @@ const inviteUser = async (req, res) => {
     });
 
     if (existingInvite) {
-      // const existingInvite = await InvitationModel.deleteOne({
-      //   email: normalizedEmail,
-      // });
       return res.status(400).json({
         success: false,
         message: 'An invitation has already been sent to this email.',
@@ -68,9 +75,78 @@ const inviteUser = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: `Invitation sent successfully to ${normalizedEmail}.`,
+      invitation: invitation,
     });
   } catch (error) {
     console.error('Invite Staff User Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+
+const grantFullAccess = async (req, res) => {
+  try {
+    const { userId } = req.body || {};
+    const { user } = req || {};
+
+    if (!user?.isAdmin) {
+      return res.status(400).json({
+        success: false,
+        message: 'Only admin can grant access.',
+      });
+    }
+
+    if (!userId || !mongoose.isValidObjectId(userId)) {
+      return res.status(400).json({ success: false, message: 'Valid user ID required.' });
+    }
+
+    const grantedUser = await UserModal.findById(userId);
+    if (!grantedUser) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Create or update full-access subscription
+    let subscription = await SubscriptionModel.findOne({ userRef: userId });
+    if (subscription) {
+      subscription.planName = 'full_access';
+      subscription.status = 'active';
+      subscription.subscriptionType = 'invite';
+      await subscription.save();
+    } else {
+      subscription = await SubscriptionModel.create({
+        userRef: userId,
+        planName: 'full_access',
+        status: 'active',
+        subscriptionType: 'invite',
+      });
+    }
+
+    // Link subscription to user
+    grantedUser.currentSubscription = subscription._id;
+    await grantedUser.save();
+
+    let invitation = await InvitationModel.findOne({ email: grantedUser.email });
+    if (invitation) {
+      invitation.status = 'accepted';
+      invitation.acceptedAt = new Date();
+      invitation.inviter = user._id; // ensure inviter is set properly
+      await invitation.save();
+    } else {
+      invitation = await InvitationModel.create({
+        email: grantedUser.email,
+        inviter: user._id,
+        status: 'accepted',
+        acceptedAt: new Date(),
+        token: null,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Full access granted successfully to ${grantedUser.email}.`,
+      invitation,
+    });
+  } catch (error) {
+    console.error('Grant Full Access Error:', error);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 };
@@ -166,4 +242,4 @@ const deleteInvitation = async (req, res) => {
   }
 };
 
-module.exports = { inviteUser, getInvitedUsers, deleteInvitation };
+module.exports = { inviteUser, getInvitedUsers, deleteInvitation, grantFullAccess };

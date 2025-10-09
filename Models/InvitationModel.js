@@ -18,8 +18,8 @@ const invitationSchema = new Schema(
 
     token: {
       type: String,
-      required: true,
-      unique: true,
+      required: false,
+      default: null,
     },
 
     status: {
@@ -37,4 +37,3 @@ const invitationSchema = new Schema(
 
 const InvitationModel = mongoose.model('Invitation', invitationSchema);
 module.exports = { InvitationModel };
- 
