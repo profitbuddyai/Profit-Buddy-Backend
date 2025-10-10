@@ -10,7 +10,7 @@ const { getHistoryData } = require('../Controllers/History');
 const { aiChat } = require('../Controllers/AIChat');
 const { checkAiQuota } = require('../MiddleWares/CheckQuotas');
 const { getCoupons } = require('../Controllers/Admin/Coupon');
-const { verifyCanSubscribe, getOrSetDefaultPaymentMethod } = require('../Controllers/Subscription');
+const { verifyCanSubscribe, getOrSetDefaultPaymentMethod, getInvoices } = require('../Controllers/Subscription');
 const { getInvitedUsers } = require('../Controllers/Admin/AddUser');
 
 router.get('/products', tokenChecker, getProducts);
@@ -28,5 +28,6 @@ router.get('/coupons', tokenChecker, getCoupons);
 router.get('/verifyCanSubscribe', tokenChecker, verifyCanSubscribe);
 router.get('/defualt-payment-method', tokenChecker, getOrSetDefaultPaymentMethod);
 router.get('/invited-users', tokenChecker, getInvitedUsers);
+router.get('/invoices', tokenChecker, getInvoices);
 
 module.exports = router;

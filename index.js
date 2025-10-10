@@ -5,10 +5,7 @@ const cors = require('cors');
 const mainRouter = require('./Routes/Routes.js');
 const connectDB = require('./Configurations/Database.js');
 const { webHooks } = require('./Webhooks/Stirpe.js');
-const { sendEmail } = require('./Services/Nodemailer.service.js');
-const { ForgotPasswordTemplate } = require('./Templates/ForgotPasswordTemplate.js');
-const { NODE_ENV, buyBoxSellerIds } = require('./Enums/OurConstant.js');
-const { keepaToMs, parseToMap } = require('./Utils/GraphCsvUtils.js');
+const { NODE_ENV } = require('./Enums/OurConstant.js');
 
 const app = express();
 
@@ -35,7 +32,6 @@ app.use('/api/v1', mainRouter);
 
 // const abc = async () => {
 //   try {
-//     sendEmail('', 'Reset Your Profit Buddy Password', ForgotPasswordTemplate('https'));
 //   } catch (error) {
 //     console.log(error);
 //   }

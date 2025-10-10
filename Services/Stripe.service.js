@@ -24,6 +24,20 @@ const createStripeSubscription = async (customerId, priceId, trialDays = null) =
   }
 };
 
+const updateStripeSubscription = async (subscriptionId, currentItemId, priceId) => {
+  try {
+    const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+      items: [{ id: currentItemId, price: priceId }],
+      proration_behavior: 'create_prorations',
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    return updatedSubscription;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getStripeSubscription = async (subscriptionId) => {
   try {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
@@ -107,13 +121,14 @@ const ensureStripeCustomer = async (user) => {
   return customerId;
 };
 
-const getPaidInvoicesOfCustomer = async (customerId) => {
+const getInvoicesOfCustomer = async (customerId) => {
   try {
     const invoices = await stripe.invoices.list({
       customer: customerId,
-      status: 'paid',
       limit: 100,
+      expand: ['data.payment_intent', 'data.subscription'],
     });
+
 
     return invoices.data;
   } catch (error) {
@@ -175,4 +190,6 @@ module.exports = {
   getUserPaymentMethodsList,
   getStripeUser,
   createStripeSetupIntent,
+  updateStripeSubscription,
+  getInvoicesOfCustomer,
 };

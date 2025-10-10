@@ -24,7 +24,7 @@ const getOffersOfProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Oops, This product has no offers.' });
     }
     const buyBoxSellerHistory = mapSellerData(offersResult?.products?.[0]?.buyBoxSellerIdHistory || []);
-    const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000;
+    const ninetyDaysAgo = Date.now() - 180 * 24 * 60 * 60 * 1000;
 
     const recentBuyBoxSellers = (buyBoxSellerHistory || []).filter((obj) => obj.date >= ninetyDaysAgo).map((obj) => obj.sellerId);
     const sellerIds = [...finalizedOffer.offers.map((offer) => offer.sellerId), ...recentBuyBoxSellers];
@@ -34,7 +34,6 @@ const getOffersOfProduct = async (req, res) => {
     }
 
     const sellerIdParam = uniqueSellerIds.join(',');
-    
 
     const sellerInfo = await getSellerInfoFromKeepa(sellerIdParam);
 
@@ -51,7 +50,7 @@ const getOffersOfProduct = async (req, res) => {
       return acc;
     }, {});
 
-    return res.status(200).json({ success: true, asin: asin, offer: enrichedOffers, buyBoxSellerHistory, sellerData });
+    return res.status(200).json({ success: true, asin: asin, offer: enrichedOffers || [], buyBoxSellerHistory, sellerData });
   } catch (error) {
     console.error(error);
 

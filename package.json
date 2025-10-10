@@ -23,7 +23,7 @@
     "mongoose": "^8.18.0",
     "nodemailer": "^7.0.6",
     "openai": "^5.22.0",
-    "stripe": "^18.5.0"
+    "stripe": "^19.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

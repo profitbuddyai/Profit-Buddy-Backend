@@ -3,7 +3,7 @@ const { login, register, requestPasswordReset, verifyResetToken, resetPassword, 
 const { userLoginValidate, userRegisterValidate } = require('../MiddleWares/UserValidation');
 const tokenChecker = require('../MiddleWares/TokenChecker');
 const { upsertHistory } = require('../Controllers/History');
-const { createSubscription, cancelSubscription, createSetupIntent, verifyCoupon, setDefaultPaymentMethod } = require('../Controllers/Subscription');
+const { createSubscription, cancelSubscription, createSetupIntent, verifyCoupon, setDefaultPaymentMethod, upgradeSubscription } = require('../Controllers/Subscription');
 const { generateCoupon, deleteCoupon } = require('../Controllers/Admin/Coupon');
 const { submitSupportQuery } = require('../Controllers/Support');
 const { inviteUser, grantFullAccess } = require('../Controllers/Admin/AddUser');
@@ -22,6 +22,7 @@ router.post('/update-profile', tokenChecker, updateProfile);
 router.post('/submit-support-query', tokenChecker, submitSupportQuery);
 
 router.post('/create-subscription', tokenChecker, createSubscription);
+router.post('/upgrade-subscription', tokenChecker, upgradeSubscription);
 router.post('/cancel-subscription', tokenChecker, cancelSubscription);
 router.post('/verify-coupon', tokenChecker, verifyCoupon);
 

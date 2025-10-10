@@ -169,7 +169,7 @@ const extractOffersFromProduct = (product) => {
     amazonOfferCount,
     fbaOfferCount,
     fbmOfferCount,
-    offers: availableOffers,
+    offers: availableOffers?.slice(0, 10) || [],
   };
 };
 

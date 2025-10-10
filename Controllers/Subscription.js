@@ -14,6 +14,8 @@ const {
   getUserPaymentMethod,
   createStripeSetupIntent,
   setAsDefaultPaymentMethod,
+  updateStripeSubscription,
+  getInvoicesOfCustomer,
 } = require('../Services/Stripe.service');
 
 const createSubscription = async (req, res) => {
@@ -116,6 +118,72 @@ const createSubscription = async (req, res) => {
   }
 };
 
+const upgradeSubscription = async (req, res) => {
+  try {
+    const { user } = req || {};
+    const { planName } = req.body || {};
+
+    if (!user?._id) {
+      return res.status(400).json({ success: false, message: 'User ID is required.' });
+    }
+
+    if (!PRICE_IDS[planName]) {
+      return res.status(400).json({ success: false, message: 'Invalid plan selected' });
+    }
+
+    const subscription = await SubscriptionModel.findOne({ userRef: user._id }).select('+stripeCustomerId +stripeSubscriptionId');
+
+    if (!subscription) {
+      return res.status(404).json({ success: false, message: 'No subscription found for this user.' });
+    }
+    if (subscription.subscriptionType === 'invite' || subscription.planName === 'full_access') {
+      return res.status(403).json({
+        success: false,
+        message: 'You cannot upgrade your plan because it is a full access plan.',
+      });
+    }
+
+    const subscriptionId = subscription.stripeSubscriptionId;
+    const stripeCustomerId = await ensureStripeCustomer(user);
+
+    if (!stripeCustomerId || !subscriptionId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Stripe customer or subscription ID missing.',
+      });
+    }
+
+    const currentSubscription = await getStripeSubscription(subscriptionId);
+    if (!currentSubscription?.items?.data?.length) {
+      return res.status(400).json({ success: false, message: 'No subscription items found in Stripe.' });
+    }
+
+    const currentItemId = currentSubscription.items.data[0].id;
+
+    const updatedSubscription = await updateStripeSubscription(subscriptionId, currentItemId, PRICE_IDS?.[planName]);
+
+    subscription.planName = planName;
+    subscription.status = updatedSubscription?.status;
+    subscription.subscriptionType = 'stripe';
+    subscription.currentPeriodStart = new Date(updatedSubscription?.items?.data?.[0]?.current_period_start * 1000);
+    subscription.currentPeriodEnd = new Date(updatedSubscription?.items?.data?.[0]?.current_period_end * 1000);
+    const savedSubscription = await subscription.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Subscription updated successfully.',
+      subscription: savedSubscription,
+    });
+  } catch (error) {
+    console.error('Error upgrading subscription:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update subscription.',
+      error: error.message,
+    });
+  }
+};
+
 const cancelSubscription = async (req, res) => {
   try {
     const { userId } = req.query;
@@ -191,7 +259,6 @@ const verifyCanSubscribe = async (req, res) => {
   }
 
   try {
-    // Get user
     const user = await UserModal.findById(userId).populate('currentSubscription');
 
     if (!user) {
@@ -201,7 +268,6 @@ const verifyCanSubscribe = async (req, res) => {
     const validCustomerId = await ensureStripeCustomer(user);
     let hasActiveOrTrialing = false;
 
-    // Check DB subscription
     const currentSub = user.currentSubscription;
     if (currentSub && (currentSub.status === 'active' || currentSub.status === 'trialing')) {
       hasActiveOrTrialing = true;
@@ -221,7 +287,6 @@ const verifyCanSubscribe = async (req, res) => {
       });
     }
 
-    // If no active/trialing subscription, check if user ever subscribed before
     let hasSubscribedBefore = false;
 
     if (validCustomerId) {
@@ -367,6 +432,61 @@ const setDefaultPaymentMethod = async (req, res) => {
   }
 };
 
+const getInvoices = async (req, res) => {
+  try {
+    const { user } = req || {};
+
+    if (!user?._id) {
+      return res.status(400).json({ success: false, message: 'User ID is required.' });
+    }
+
+    const subscription = await SubscriptionModel.findOne({ userRef: user._id }).select('+stripeCustomerId');
+
+    if (!subscription) {
+      return res.status(404).json({ success: false, message: 'No subscription found for this user.' });
+    }
+
+    const customerId = await ensureStripeCustomer(user);
+
+    if (!customerId) {
+      return res.status(400).json({ success: false, message: 'Stripe customer ID not found.' });
+    }
+
+    const invoices = await getInvoicesOfCustomer(customerId);
+
+    console.log(JSON.stringify(invoices[0], null, 2));
+
+
+
+    const formattedInvoices = invoices.map((inv) => ({
+      id: inv.id,
+      invoiceNumber: inv.number,
+      amount: (inv.amount_paid || inv.amount_due) / 100,
+      currency: inv.currency?.toUpperCase(),
+      status: inv.status,
+      periodStart: inv.period_start ? new Date(inv.period_start * 1000) : null,
+      periodEnd: inv.period_end ? new Date(inv.period_end * 1000) : null,
+      hostedInvoiceUrl: inv.hosted_invoice_url,
+      paymentStatus: inv.payment_intent?.status || 'unknown',
+      createdAt: new Date(inv.created * 1000),
+      subscriptionId: inv.subscription || null,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: 'Invoices fetched successfully.',
+      invoices: formattedInvoices,
+    });
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch invoices.',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createSubscription,
   cancelSubscription,
@@ -375,4 +495,6 @@ module.exports = {
   verifyCoupon,
   setDefaultPaymentMethod,
   getOrSetDefaultPaymentMethod,
+  upgradeSubscription,
+  getInvoices,
 };
